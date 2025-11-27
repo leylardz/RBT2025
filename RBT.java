@@ -150,6 +150,113 @@ public class RBT<T extends Comparable<T>> {
         }
     }
 
+    public void transplant(Nodo<T> u, Nodo<T> v){
+        if(u.parent==vacio){
+            root=v;
+        }else if(u==u.parent.left){
+            u.parent.left=v;
+        }else{
+            u.parent.right = v;
+        }
+        v.parent = u.parent;
+    }
+
+    public void delete(Nodo<T> z){
+        Nodo<T> y =z;
+        Nodo<T> x;
+        Color yColor = y.color;
+        if(z.left==vacio){
+            x = z.right;
+            transplant(z, z.right);
+        }else if(z.right==vacio){
+            x=z.left;
+            transplant(z, z.left);
+        }else{
+            y = minimoRecursivo(z.right);
+            yColor = y.color;
+            x=y.right;
+
+            if(y.parent==z){
+                x.parent=y;
+            }else{
+                transplant(y, y.right);
+                y.right=z.right;
+                y.right.parent=y;
+            }
+            transplant(z, y);
+            y.left=z.left;
+            y.left.parent=y;
+            y.color=z.color;
+        }if(yColor==Color.GRAY){
+            deleteFixup(x);
+        }
+    }
+
+    public void deleteFixup(Nodo<T> x){
+        Nodo<T> w;
+        while(x!=root && x.color==Color.GRAY){
+            if(x==x.parent.left){
+                w=x.parent.right;
+                if(w.color==Color.RED){
+                    w.color=Color.GRAY;
+                    x.parent.color=Color.RED;
+                    rotateLeft(x.parent);
+                    w=x.parent.right;
+                }
+                if(w.left.color==Color.GRAY && w.right.color==Color.GRAY){
+                    w.color=Color.RED;
+                    x=x.parent;
+                }else if(w.right.color==Color.GRAY){
+                    w.left.color=Color.GRAY;
+                    w.color=Color.RED;
+                    rotateRight(w);
+                    w=x.parent.right;
+                }
+                w.color=x.parent.color;
+                x.parent.color=Color.GRAY;
+                w.right.color=Color.GRAY;
+                rotateLeft(x.parent);
+                x=root;
+            }else{
+                w=x.parent.left;
+                if(w.color==Color.RED){
+                    w.color=Color.GRAY;
+                    x.parent.color=Color.RED;
+                    rotateRight(x.parent);
+                    w=x.parent.left;
+                }
+                if(w.right.color==Color.GRAY && w.left.color==Color.GRAY){
+                    w.color=Color.RED;
+                    x=x.parent;
+                }else if(w.left.color==Color.GRAY){
+                    w.right.color=Color.GRAY;
+                    w.color=Color.RED;
+                    rotateLeft(w);
+                    w=x.parent.left;
+                }
+                w.color=x.parent.color;
+                x.parent.color=Color.GRAY;
+                w.left.color=Color.GRAY;
+                rotateRight(x.parent);
+                x=root;
+            }
+            x.color=Color.GRAY;
+        }
+    }
+
+    public Nodo<T> getMinimo(){
+        if(root==vacio){
+            return vacio;
+        }
+        return minimoRecursivo(root);
+    }
+    public Nodo<T> minimoRecursivo(Nodo<T> nodo){
+        if (nodo.left == vacio){
+            return nodo;
+        }
+        return minimoRecursivo(nodo.left);
+    }
+
     public void inOrder() {
         if (root == vacio) {
             System.out.println("El árbol está vacío");

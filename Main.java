@@ -42,7 +42,8 @@ public class Main extends JFrame {
         boton.setFont(font);
         JButton botonBorrar = new JButton("Eliminar");
         botonBorrar.setFont(font);
-        boton.addActionListener(e -> this.dibujar());        
+        boton.addActionListener(e -> this.dibujar()); 
+        botonBorrar.addActionListener(e -> this.eliminar());        
         texto = new JTextField(40);
         texto.setFont(font);
         texto.setHorizontalAlignment(JTextField.CENTER);
@@ -97,6 +98,46 @@ public class Main extends JFrame {
         // 4) Repintar el panel
         panelArbol.repaint();        
     }
+
+    public Nodo<Integer> buscarNodo(Nodo<Integer> actual, int elemento) {
+        if (actual == null || actual == rbt.vacio) return null;
+
+        if (elemento == actual.elemento) return actual;
+
+        if (elemento < actual.elemento)
+            return buscarNodo(actual.left, elemento);
+        else
+            return buscarNodo(actual.right, elemento);
+    }
+
+
+    public void eliminar() {
+        if (texto.getText().isEmpty()) return;
+        int value = Integer.parseInt(texto.getText());
+        Nodo<Integer> nodo = buscarNodo(rbt.root, value);
+
+        if (nodo == null || nodo == rbt.vacio) {
+            return;
+        }
+        rbt.delete(nodo);
+        rbt.size--; 
+
+        int aa = (int) Math.ceil(Math.log(Math.max(rbt.size,1)) / Math.log(2));
+        aa = Math.max(aa, 1) + 2;
+
+        int ancho = panelArbol.getWidth();
+        int alto = panelArbol.getHeight();
+        if (ancho <= 0 || alto <= 0) {
+            ancho = 1000;
+            alto = 600;
+        }
+        posiciones.clear();
+        int xCentro = ancho / 2;
+        calcularPosiciones(rbt.root, 1, posiciones, ancho, alto, xCentro, aa);
+        panelArbol.repaint();
+    }
+
+
     
     private void dibujarArbol(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
